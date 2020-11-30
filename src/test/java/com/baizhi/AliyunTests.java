@@ -18,8 +18,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.annotation.Resource;
 import java.util.List;
 
+@Test
+void Aaa{
+    int a=10;
+    int b=10;
+}
+
 @SpringBootTest
 class AliyunTests {
+   
 
 
 
