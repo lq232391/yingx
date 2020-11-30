@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "http://mybatis.org/dtd/mybatis-3-mapper.dtd" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.CategoryDao">
+    <sql id="query">
+        id,cate_name cateName,levels,parent_id parentId
+    </sql>
+<select id="queryAllCategory" resultType="Category" parameterType="Integer">
+    select <include refid="query"/>
+    from yx_category
+    where levels = '1'
+    limit #{start},#{rows}
+
+</select>
+    <!--查询总条数-->
+    <select id="queryTotal" resultType="Long" >
+        select count(id) from yx_category where levels="1"
+    </select>
+    <!--查询二级类别-->
+    <select id="queryTwoCategory" resultType="Category">
+        select <include refid="query"/>
+        from yx_category
+        where parent_id =#{id}
+        limit #{start},#{rows}
+    </select>
+    <!--查询二级类别的总条数-->
+    <select id="queryTwoTotal" resultType="Long">
+        select count(id) from yx_category where parent_id=#{id}
+    </select>
+    <!--添加一级类别-->
+    <insert id="addOne" parameterType="Category">
+        insert into yx_category values(#{id},#{cateName},#{levels},#{parentId})
+    </insert>
+    <!--修改一级类别-->
+    <update id="updateOne" parameterType="Category">
+        update yx_category
+        <set>
+            <if test="cateName!=null">cate_name=#{cateName}</if>
+            <if test="levels!=null">levels=#{levels}</if>
+            <if test="parentId!=null">parent_id=#{parentId}</if>
+        </set>
+        where id = #{id}
+    </update>
+   <!-- 删除一级类别-->
+    <delete id="deleteOne" parameterType="String">
+        delete from  yx_category where id=#{id}
+    </delete>
+    <!--查询所有一级类别-->
+    <select id="queryAll" resultType="Category">
+        select <include refid="query"/> from yx_category
+    </select>
+    <!--根据id查询-->
+    <select id="queryById" resultType="com.baizhi.entity.Category">
+        select <include refid="query"/> from yx_category where id=#{id}
+    </select>
+    <resultMap id="ress" type="com.baizhi.po.CategoryPo">
+        <id column="id" property="id"/>
+        <result column="cateName" property="cateName"/>
+        <result column="levels" property="levels"/>
+        <result column="parentId" property="parentId"/>
+        <!--封装关系属性-->
+        <collection property="categoryList" ofType="com.baizhi.po.CategoryPo">
+            <id column="id1" property="id"/>
+            <result column="cateName1" property="cateName"/>
+            <result column="levels1" property="levels"/>
+            <result column="parentId1" property="parentId"/>
+        </collection>
+    </resultMap>
+
+    <select id="queryPageAll" resultMap="ress">
+        select
+        e.id id,e.cate_name cateName,e.levels levels,e.parent_id parentId,
+        v.id id1,v.cate_name cateName1,v.levels levels1,v.parent_id parentId1
+        from yx_category e
+        inner join yx_category v on e.id=v.parent_id
+        where e.levels='1'
+    </select>
+</mapper>
